@@ -1,12 +1,12 @@
 var mysql = require("mysql");
-// var inquirer = require("inquirer");
+var inquirer = require("inquirer");
 
 // create the connection information for the sql database
 var connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   port: 3306,
-  password: "w@l@@",
+  password: "walaa@76",
   database: "bamazon_DB"
 });
 
@@ -15,7 +15,50 @@ connection.connect(function(err) {
   console.log("connected as id " + connection.threadId);
   connection.end();
 });
+
+// 
 connection.query("SELECT * FROM products", function(err, res){
   if (err) throw err;
-  console.log(res);
+  console.table(res);
+  
+  inquirer
+  .prompt([
+    
+    {
+      type: "input",
+      message: "What is the item id for the product you would like to purchase?",
+      name: "productId"
+    },
+    
+    {
+      type: "input",
+      message: "How Many?",
+      name: "productQuantity"
+    }
+  ])
+  .then(function(inquirerResponse) {
+    // If the inquirerResponse confirms, we displays the inquirerResponse's username and pokemon from the answers.
+   console.log(inquirerResponse);
+   var product; 
+
+   for (var i=0; i<res.length; i++){
+     if (res[i].item_id === parseInt(inquirerResponse.productId)){
+       product=res[i];
+      }
+      
+    }
+    console.log(product);
+    if (product.stock_quantity >= parseInt(inquirerResponse.productQuantity)){
+      console.log("Order complete, your total is $:", + parseInt(inquirerResponse.productQuantity) * product.price);
+      
+      connection.query("UPDATE products SET stock_quantity = " + product.stock_quantity - parseInt(inquirerResponse.productQuantity) + "WHERE item_id = " + parseInt(inquirerResponse.productId) , function(products, res){
+        console.log(res);
+      })
+
+    } else {
+      console.log("Not enough stock!");
+    }
+
+  });
+
 });
