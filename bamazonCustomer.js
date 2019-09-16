@@ -16,14 +16,11 @@ connection.connect(function(err) {
   connection.end();
 });
 
-// 
 connection.query("SELECT * FROM products", function(err, res){
   if (err) throw err;
   console.table(res);
   
-  inquirer
-  .prompt([
-    
+  inquirer.prompt([
     {
       type: "input",
       message: "What is the item id for the product you would like to purchase?",
@@ -37,28 +34,27 @@ connection.query("SELECT * FROM products", function(err, res){
     }
   ])
   .then(function(inquirerResponse) {
-    // If the inquirerResponse confirms, we displays the inquirerResponse's username and pokemon from the answers.
    console.log(inquirerResponse);
+   
    var product; 
-
-   for (var i=0; i<res.length; i++){
+    for (var i=0; i<res.length; i++){
      if (res[i].item_id === parseInt(inquirerResponse.productId)){
        product=res[i];
       }
-      
     }
     console.log(product);
+
     if (product.stock_quantity >= parseInt(inquirerResponse.productQuantity)){
-      console.log("Order complete, your total is $:", + parseInt(inquirerResponse.productQuantity) * product.price);
+      console.log("Order complete, your total is: $", + parseInt(inquirerResponse.productQuantity) * product.price);
       
-      connection.query("UPDATE products SET stock_quantity = " + product.stock_quantity - parseInt(inquirerResponse.productQuantity) + "WHERE item_id = " + parseInt(inquirerResponse.productId) , function(products, res){
-        console.log(res);
-      })
+      connection.query("UPDATE products SET stock_quantity = " + product.stock_quantity - parseInt(inquirerResponse.productQuantity) + "WHERE item_id = " + parseInt(inquirerResponse.productId)), function(err, res){
+        if (err) throw err;
+        console.log(res)
+      }
+        console.table(res)
 
     } else {
       console.log("Not enough stock!");
     }
-
   });
-
 });
