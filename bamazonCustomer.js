@@ -13,7 +13,6 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
-  connection.end();
 });
 
 connection.query("SELECT * FROM products", function(err, res){
@@ -34,27 +33,28 @@ connection.query("SELECT * FROM products", function(err, res){
     }
   ])
   .then(function(inquirerResponse) {
-   console.log(inquirerResponse);
-   
-   var product; 
+    console.log(inquirerResponse);
+    
+    var product; 
     for (var i=0; i<res.length; i++){
-     if (res[i].item_id === parseInt(inquirerResponse.productId)){
-       product=res[i];
+      if (res[i].item_id === parseInt(inquirerResponse.productId)){
+        product=res[i];
       }
     }
     console.log(product);
-
+    
     if (product.stock_quantity >= parseInt(inquirerResponse.productQuantity)){
       console.log("Order complete, your total is: $", + parseInt(inquirerResponse.productQuantity) * product.price);
       
-      connection.query("UPDATE products SET stock_quantity = " + product.stock_quantity - parseInt(inquirerResponse.productQuantity) + "WHERE item_id = " + parseInt(inquirerResponse.productId)), function(err, res){
+      connection.query("UPDATE products SET stock_quantity = " + (product.stock_quantity - parseInt(inquirerResponse.productQuantity)) + "WHERE item_id = " + parseInt(inquirerResponse.productId), function(err, res){
         if (err) throw err;
-        console.log(res)
-      }
-        console.table(res)
-
+        console.log(res);
+      
+      console.table(res);
+      });
     } else {
       console.log("Not enough stock!");
     }
+    connection.end();
   });
 });
