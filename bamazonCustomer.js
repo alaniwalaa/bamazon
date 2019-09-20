@@ -44,9 +44,9 @@ connection.query("SELECT * FROM products", function(err, res){
     console.log(product);
     
     if (product.stock_quantity >= parseInt(inquirerResponse.productQuantity)){
-      console.log("Order complete, your total is: $", + parseInt(inquirerResponse.productQuantity) * product.price);
+      console.log("Order complete, your total is: $", parseInt(inquirerResponse.productQuantity) * product.price);
       
-      connection.query("UPDATE products SET stock_quantity = " + (product.stock_quantity - parseInt(inquirerResponse.productQuantity)) + "WHERE item_id = " + parseInt(inquirerResponse.productId), function(err, res){
+      connection.query("UPDATE products SET stock_quantity = " + (product.stock_quantity - parseInt(inquirerResponse.productQuantity)) + " WHERE item_id = " + parseInt(inquirerResponse.productId), function(err, res){
         if (err) throw err;
         console.log(res);
       
